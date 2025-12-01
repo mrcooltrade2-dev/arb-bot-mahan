@@ -1,0 +1,45 @@
+💵 سود خالص روی {START_AMOUNT}$:
+👉 {profit:.4f} $
+
+🛒 خرید از: {dex_buy}
+💸 فروش به: {dex_sell}
+
+📊 لیکوییدیتی:
+Pancake: {liqA}$
+ApeSwap: {liqB}$
+
+🧾 Taxes:
+Buy: {buy_taxA if priceA<priceB else buy_taxB}%
+Sell: {sell_taxB if priceA<priceB else sell_taxA}%
+"""
+                send_alert(msg)
+
+            time.sleep(CHECK_INTERVAL)
+
+        except Exception as e:
+            send_alert(f"⚠️ ربات ریست شد: {e}")
+            time.sleep(5)
+
+
+# ================================
+#  شروع چند رشته‌ای
+# ================================
+def start_workers():
+    for _ in range(WORKER_THREADS):
+        threading.Thread(target=worker, daemon=True).start()
+
+
+# ================================
+#  داشبورد وب
+# ================================
+@app.route("/")
+def home():
+    return jsonify({"alerts": last_alerts})
+
+
+# ================================
+#  اجرا
+# ================================
+if name == "main":
+    start_workers()
+    app.run(host="0.0.0.0", port=8080)
